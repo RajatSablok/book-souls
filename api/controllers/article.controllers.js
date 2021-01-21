@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const Article = require("../models/articles.model");
+const User = require("../models/users.model");
 
 const createArticle = async (req, res) => {
   const { title, content, tags } = req.body;
@@ -24,10 +25,22 @@ const createArticle = async (req, res) => {
 
   await article
     .save()
-    .then(() => {
-      res.status(201).json({
-        message: "Article posted successfully",
-      });
+    .then(async (result) => {
+      await User.updateOne(
+        { _id: author },
+        { $push: { articles: { articleId: result._id } } }
+      )
+        .then(() => {
+          res.status(201).json({
+            message: "Article posted successfully",
+          });
+        })
+        .catch((err) => {
+          res.status(500).json({
+            message: "Something went wrong",
+            error: err.toString(),
+          });
+        });
     })
     .catch((err) => {
       res.status(500).json({
@@ -87,10 +100,22 @@ const deleteArticle = async (req, res) => {
     .then(async (article) => {
       if (article.author.equals(userId)) {
         await Article.deleteOne({ _id: articleId })
-          .then(() => {
-            res.status(200).json({
-              message: "Article deleted successfully",
-            });
+          .then(async () => {
+            await User.updateOne(
+              { _id: userId },
+              { $pull: { articles: { articleId } } }
+            )
+              .then(() => {
+                res.status(200).json({
+                  message: "Article deleted successfully",
+                });
+              })
+              .catch((err) => {
+                res.status(404).json({
+                  message: "Invalid article ID",
+                  error: err.toString(),
+                });
+              });
           })
           .catch((err) => {
             res.status(404).json({
