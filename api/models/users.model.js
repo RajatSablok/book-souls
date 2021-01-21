@@ -19,6 +19,13 @@ const userSchema = mongoose.Schema({
       bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Book" },
     },
   ],
+
+  podcasts: [
+    {
+      _id: false,
+      podcastId: { type: mongoose.Schema.Types.ObjectId, ref: "Podcast" },
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", userSchema);
