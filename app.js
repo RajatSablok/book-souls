@@ -60,6 +60,7 @@ app.use(cors());
 
 app.use("/user", require("./api/routes/user.routes"));
 app.use("/article", require("./api/routes/article.routes"));
+app.use("/book", require("./api/routes/book.routes"));
 
 //This function will give a 404 response if an undefined API endpoint is fired
 app.use((req, res, next) => {
